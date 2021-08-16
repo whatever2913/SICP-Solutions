@@ -1,0 +1,39 @@
+#lang sicp 
+
+; Ex 1.6
+; Answer is an infinte recursive loop that will eat away at memory if using
+; "new-if". The reason is that "if" as a special form is defined to evaluate
+; the predicate, and then based on the result of that to evaluate only one of either
+; the consequent (if the predicate evaluates to #t) or the alternative (if the
+; predicate evaluates to #f). Our "new-if" does not have that restriction, and
+; our applicative-order interpretor will try to evaluate all the operands
+; before evaluating the operator. This causes an infinite recursion as the
+; alternative calls itself, so there is an infinite chain of the sqrt-iter
+; function calling itself.
+
+(define (square x) (* x x))
+
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x))
+     0.001))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+; defining an if-like function using the cond special form
+(define (new-if predicate then-clause else-clause)
+  (cond (predicate then-clause)
+        (else else-clause)))
+
+; the sqrt-iter function implemented with new-if
+(define (sqrt-iter guess x)
+  (new-if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x)
+                 x)))
+
+; Wrapper for easy calls
+(define (sqrt x) (sqrt-iter 1.0 x))
