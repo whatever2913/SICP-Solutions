@@ -19,6 +19,19 @@
 ; 4.641588833612779e+102
 ; > (cbrt 1e+309)
 ; user break
+;;;
+;;;
+; There is a problem, (cbrt 100) goes to infinity for some reason using this
+; good-enough? procedure below. Not sure why.
+; This one seems to work (needs fuller testing)
+#|
+(define (good-enough? guess improved-guess)
+  (and
+   (< (abs (/ guess improved-guess))
+     (+ 1 .00001))
+   (> (abs (/ guess improved-guess))
+     (- 1 .00001))))
+|#
 
 (define (cbrt-iter guess x)
   (if (good-enough? guess (improve guess x) )
