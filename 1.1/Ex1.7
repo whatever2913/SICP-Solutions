@@ -1,0 +1,111 @@
+#lang sicp 
+
+; Ex 1.7
+; Small numbers:
+; The good-enough? procedure we have defined compares the square of our
+; guess against the number whose root we are seeking. It uses an absolute
+; difference between the two values (the square of our guess and the number)
+; which does not work well when the number we are trying to find the root of is
+; itself very small. For example, say we want to find the square root of
+; .0000000009 - As it is originally written, the good-enough? procedure will
+; pass whenever the difference of our guess^2 and the target number is less
+; than 0.001. This means our sqrt-iter procedure can arrive at a value that
+; when squared can equal .0000498989438 - which is not at all close to an
+; accurate value, but will pass the good-enough? test, as .0000000009 -
+; .0000498989438 equals -0.0000498980438, and the absolute value of this is
+; within our tolerance range. 
+;
+; For a concrete example, we have this:
+;
+; > (sqrt .0000000009)
+; 0.03125000959062442
+; > (square (sqrt .0000000009))
+; 0.0009765630994141182
+;
+; That is answer is unusuable. 
+;
+; Large numbers:
+; Large numbers can be a problem, as depending on the library there is a limit
+; to how much precision (in the form of significant digits) is in the system's
+; representation of large numbers. Most of the time large numbers are rounded
+; or truncated in some way. (Libraries do exist of course that handle very large
+; numbers, sometimes arbitrarily large numbers, but they come at a performance
+; trade off.) As a result, when our procedure is given a very large number, it
+; is truncated or rounded by our system, and leads to a situation where it is
+; not possible for a subtraction operation to ever lead to a difference of
+; of .001 between two numbers. This is not good, as a difference of less then
+; .001 is the exit condition for our recursive sqrt-iter procedure. The result
+; is an endless series of calls to sqrt-iter that call good-enough? which
+; can only return #f, eventually leading to another call to sqrt-iter.
+;
+; Here's an example running on my system (DrRacket 8.2 usig #lang sicp)
+; > (sqrt 1e+45)
+; 3.1622776601683792e+22
+; > (square (sqrt 1e+45))
+; 1e+45
+;
+; > (sqrt 1e+46)
+; user break
+;
+; The first example works and produces a good answer. The second example is
+; too large and causes an endless series of recursive calls that eventually
+; causes the interpretor system to run out of memory and stop. 
+;
+; Here is an implementation that uses a percentage change comparing the value
+; of guess with the value of an improved guess. It passes (returns #t) when the
+; quotient of guess and improved guess is within a certain narrow range. Shown
+; below is good-enough2 using .999 < x < 1.001 as the test range. And the
+; output from the previous tests:
+;
+; > (sqrt2 .0000000009)
+; 3.002306148991605e-5
+; > (square (sqrt2 .0000000009))
+; 9.013842212272802e-10
+; > (sqrt2 1e+45)
+; 3.1627246890405767e+22
+; > (square (sqrt2 1e+45))
+; 1.0002827458666813e+45
+; > (sqrt2 1e+100)
+; 1.000000633105179e+50
+; > (sqrt2 1e+200)
+; 1.0000016657141205e+100
+; >
+;
+; It works better for both small and large numbers, at least with the values
+; above. 
+
+(define (sqrt-iter2 guess x)
+  (if (good-enough2? guess (improve guess x) )
+      guess
+      (sqrt-iter2 (improve guess x)
+                 x)))
+
+(define (good-enough2? guess improved-guess)
+  (and
+   (< (abs (/ guess improved-guess))
+     (+ 1 .001))
+   (> (abs (/ guess improved-guess))
+     (- 1 .001))))
+
+; Wrapper for easy calls
+(define (sqrt x) (sqrt-iter 1.0 x))
+
+(define (sqrt2 x) (sqrt-iter2 1.0 x))
+
+(define (square x) (* x x))
+
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x )
+      guess
+      (sqrt-iter (improve guess x)
+                 x)))
+
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x))
+     0.001))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (improve guess x)
+  (average guess (/ x guess)))
