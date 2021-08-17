@@ -1,0 +1,43 @@
+#lang sicp 
+
+; Ex 1.8
+; Fairly simple implementation. The improve function is where the changes
+; need to be made, by using (x/y^2 + 2y)/3 as the formula for an improved
+; guess.
+; This uses a different version of good-enough? testing. Like in exercise 1.7
+; this version does not use an absolute tolerance to see if the guess is good
+; enough, but instead continues until the value of guess and (improve guess x)
+; are identical (to the compiler/interpreter). This represents the interpretor
+; reaching its limits of precision and provides the most exact answer possible
+; for the hardware/software system and internal number representations in use.
+;
+; Note - this fails at the point where scheme switches from attempting to
+; represent the number with a value and uses "+inf.0" as the number. 
+; > (cbrt 1e+307)
+; 2.1544346900318838e+102
+; > (cbrt 1e+308)
+; 4.641588833612779e+102
+; > (cbrt 1e+309)
+; user break
+
+(define (cbrt-iter guess x)
+  (if (good-enough? guess (improve guess x) )
+      guess
+      (cbrt-iter (improve guess x)
+                 x)))
+; Wrapper for easy calls
+(define (cbrt x) (cbrt-iter 1.0 x))
+
+(define (square x) (* x x))
+
+
+(define (good-enough? guess x)
+  (= guess x))
+
+
+(define (improve guess x)
+  (/ (+
+      (/ x (square guess))
+      (* 2 guess))
+     3))
+
