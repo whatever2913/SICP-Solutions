@@ -1,0 +1,59 @@
+#lang sicp
+
+; Ex 1.9
+; First procedure
+
+#|
+(define (+ a b)
+  (if (= a 0)
+      b
+      (inc (+ (dec a) b))))
+
+Using substitution, we arrive at a recursive process. (Note, I did not
+include the (dec a) operations to save space. Including them does not change
+the basic "shape" and recursive nature of this procedure
+
+(+ 4 5)
+(inc (+ 3 5))
+(inc (inc (+ 2 5)))
+(inc (inc (inc (+ 1 5))))
+(inc (inc (inc (inc (+ 0 5)))))
+(inc (inc (inc (inc 5))))
+(inc (inc (inc 6)))
+(inc (inc 7))
+(inc 8)
+9
+
+On my system I ran out of memory trying to do
+(+ 394839483984 434)
+Which is consistent with a resursive procedure that creates a chain of deffered
+operations that the interpretor has to keep track of, and can exhaust the
+resources of the interpreter
+|#
+
+; Second procedure
+#|
+(define (+ a b)
+  (if (= a 0)
+      b
+      (+ (dec a) (inc b))))
+
+Using the substitution model we get at this:
+(+ 4 5)
+(+ 3 6)
+(+ 2 7)
+(+ 1 8)
+(+ 0 9)
+9
+
+This is an iterative process. It is possible to start the process at any of the
+steps above and get to the answer as there is no deferred chain of operations.
+
+Attempting
+(+ 394839483984 434)
+does not result in my interpretor running out of resources, the memory being
+used is mostly constant. However this implementation of + is very slow
+as it will result in 394,839,483,984 individual dec and inc operations. In
+theory this algorithm will complete and provide the correct answer, but I am not
+going to wait for it.
+|#
