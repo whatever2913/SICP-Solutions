@@ -1,1 +1,21 @@
+#lang sicp
 
+; Ex 1.16
+; Iterative version of a function to take a base to a power
+; O(log n) in steps
+; 0(1) in size (b n and a contain the complete state at any point
+; of the process). Uses the observation (b^n/2)^2 = (b^2)^n/2
+
+(define (fast-expt-iter b n a)
+  (cond ((= n 0) a)
+        ((even? n) (fast-expt-iter (* b b) (/ n 2) a))
+        (else (fast-expt-iter b (- n 1) (* a b)))))
+                                
+(define (expt b n) (fast-expt-iter b n 1))
+
+
+> (expt 2 21)
+2097152
+> (expt 58 27)
+409784782038475358155993886453618449022558666752
+> 
