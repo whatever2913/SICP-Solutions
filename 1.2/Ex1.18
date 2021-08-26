@@ -1,1 +1,12 @@
+#lang sicp
 
+; Ex 1.18
+; Multiplication algorithm using just addition, halving and doubling
+; O(logn) in steps and O(1) in space, as the algorithm uses a state variable
+; and calls itself passing the current values of a b and the total to itself
+(define (* a b)
+  (define (iter* a b total)
+    (cond ((= 0 b) total)
+          ((even? b) (iter* (double a) (halve b) total))
+          (else (iter* a (- b 1) (+ a total)))))
+  (iter* a b 0))
